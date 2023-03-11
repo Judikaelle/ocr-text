@@ -1,4 +1,5 @@
-import { createWorker } from "tesseract.js";
+import {createWorker} from "tesseract.js";
+import {isUppercase} from "./utils";
 
 // Get DOM elements
 const fileInput = document.getElementById('file-input') as HTMLInputElement;
@@ -7,6 +8,7 @@ const resultDiv = document.getElementById('result') as HTMLDivElement;
 const charactersDiv = document.getElementById('characters') as HTMLDivElement;
 const charactersButtons = document.getElementsByClassName('character-button') as HTMLCollectionOf<HTMLButtonElement>;
 const lines = document.getElementsByTagName('p') as HTMLCollectionOf<HTMLParagraphElement>;
+
 interface Dialogues {
     [nombre: string]: {
         personnage: string;
@@ -16,7 +18,7 @@ interface Dialogues {
 
 let characterColors: any = {};
 const characterRegex = /^[A-Za-z]+(?=\s*:)/;
-// const didascalieRegex = /^([^\(\)]+)\s*\([^)]*\)\s*:/
+const didascalieRegex = /^([^\(\)]+)\s*\([^)]*\)\s*:/
 
 
 const assignColors = (characters: Array<string>) => {
@@ -70,7 +72,7 @@ submitButton.addEventListener('click', async () => {
         try {
             await worker.loadLanguage('fra');
             await worker.initialize('fra');
-            const { data: { text } } = await worker.recognize(image);
+            const {data: {text}} = await worker.recognize(image);
             return text;
         } catch (error) {
             console.log(error);
@@ -86,29 +88,41 @@ submitButton.addEventListener('click', async () => {
     // Récupérer les dialogues
     const getDialogues = (text: string | undefined) => {
         // TODO: Récupérer didascalies
-        const matches = text?.match(/^.+$/gm);
+        const repliques = text?.match(/^.+$/gm);
         const dialogues: any = {};
         let currentIndex = 1;
 
-       for (const match of matches || []) {
-           console.log(match);
-           const characterMatch = match.match(characterRegex);
-           if (characterMatch) {
-               const character = characterMatch[0];
-               const dialogue = match.replace(`${character} : `, '');
+        for (const r of repliques || []) {
+            const didascalieMatch = r.match(didascalieRegex);
+            const characterMatch = r.match(characterRegex);
 
-               // Ajouter le personnage à la liste des personnages
-               allCharacters.push(character);
-               allCharacters = Array.from(new Set(allCharacters));
+            if (didascalieMatch) {
+                const didascalie = didascalieMatch[0];
+                const stringSplit = didascalie.split(' ');
+                const dialogue = r.replace(didascalie, '');
 
-               // Créer un objet pour chaque dialogue
-               dialogues[currentIndex] = { "personnage": character, "replique": dialogue};
-               currentIndex++;
-           } else {
-               dialogues[currentIndex - 1]["replique"] += ` ${match}`;
-           }
+                // Ajouter le personnage à la liste des personnages
+                allCharacters.push(stringSplit[0]);
+                allCharacters = Array.from(new Set(allCharacters))
+
+                dialogues[currentIndex] = {"personnage": stringSplit[0], "replique": dialogue};
+                currentIndex++;
+            } else if (characterMatch && isUppercase(characterMatch[0])) {
+                const character = characterMatch[0];
+                const dialogue = r.replace(`${character} : `, '');
+
+                // Ajouter le personnage à la liste des personnages
+                allCharacters.push(character);
+                allCharacters = Array.from(new Set(allCharacters));
+
+                // Créer un objet pour chaque dialogue
+                dialogues[currentIndex] = {"personnage": character, "replique": dialogue};
+                currentIndex++;
+            } else {
+                dialogues[currentIndex - 1]["replique"] += ` ${r}`;
+            }
         }
-    return dialogues;
+        return dialogues;
     }
 
 
@@ -158,7 +172,6 @@ submitButton.addEventListener('click', async () => {
     }
 
 
-
     // Création d'un tableau à partir de la collection de boutons
     const arrayCharactersButtons = Array.from(charactersButtons);
 
@@ -173,11 +186,11 @@ submitButton.addEventListener('click', async () => {
             // Création d'un tableau à partir de la collection de span
             const arrayLines = Array.from(lines);
             for (const line of arrayLines) {
-            line.addEventListener('click', () => {
-                const span = line.getElementsByTagName('span')[0];
-                const characterLine = line.innerText.match(characterRegex)?.[0];
-                if(characterLine === character) span.style.backgroundColor = span.style.backgroundColor === "black" ? characterColors[character] : "black";
-            });
+                line.addEventListener('click', () => {
+                    const span = line.getElementsByTagName('span')[0];
+                    const characterLine = line.innerText.match(characterRegex)?.[0];
+                    if (characterLine === character) span.style.backgroundColor = span.style.backgroundColor === "black" ? characterColors[character] : "black";
+                });
             }
         });
     }
@@ -185,6 +198,4 @@ submitButton.addEventListener('click', async () => {
 });
 
 
-
-
-export{}
+export {}
