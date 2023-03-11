@@ -17,7 +17,9 @@ interface Dialogues {
 }
 
 let characterColors: any = {};
-const characterRegex = /^[A-Za-z]+(?=\s*:)/;
+
+// Regex
+const characterRegex = /^[A-Za-z]+(\s*:|:)/;
 const didascalieRegex = /^([^\(\)]+)\s*\([^)]*\)\s*:/
 
 
@@ -102,26 +104,27 @@ submitButton.addEventListener('click', async () => {
                 const dialogue = r.replace(didascalie, '');
 
                 // Ajouter le personnage à la liste des personnages
-                allCharacters.push(stringSplit[0]);
+                allCharacters.push(stringSplit[0].trim());
                 allCharacters = Array.from(new Set(allCharacters))
 
-                dialogues[currentIndex] = {"personnage": stringSplit[0], "replique": dialogue};
+                dialogues[currentIndex] = {"personnage": stringSplit[0].trim(), "replique": dialogue};
                 currentIndex++;
             } else if (characterMatch && isUppercase(characterMatch[0])) {
                 const character = characterMatch[0];
-                const dialogue = r.replace(`${character} : `, '');
+                const dialogue = r.replace(character, '');
 
                 // Ajouter le personnage à la liste des personnages
-                allCharacters.push(character);
+                allCharacters.push(character.replace(':', '').trim());
                 allCharacters = Array.from(new Set(allCharacters));
 
                 // Créer un objet pour chaque dialogue
-                dialogues[currentIndex] = {"personnage": character, "replique": dialogue};
+                dialogues[currentIndex] = {"personnage": character.replace(':', '').trim(), "replique": dialogue};
                 currentIndex++;
             } else {
                 dialogues[currentIndex - 1]["replique"] += ` ${r}`;
             }
         }
+        console.table(allCharacters);
         return dialogues;
     }
 
