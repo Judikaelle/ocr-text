@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css?family=Inconsolata');
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inconsolata', monospace;
+    background-color: #fff;
+    color: black;
+    margin: 2em;
+}
+
+h1 {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 5em;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+label {
+    cursor: pointer;
+    border: 2px solid #ff6400;
+    padding: 15px 30px;
+    border-radius: 0.5em;
+}
+
+.input {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#file-list {
+    margin-top: 1em;
+}
+
+.character-button, .reset-button {
+    background-color: #ff6400;
+    border: none;
+    border-radius: 0.5em;
+    color: #fff;
+    padding: 15px;
+    text-decoration: none;
+    cursor: pointer;
+    margin: 2em 0 0 0.5em;
+    font-weight: bold;
+}
+
+.reset-button {
+    color: black;
+    background-color: #fff;
+    border: 2px solid #ff6400;
+    font-weight: normal;
+}
+
+#file-upload-button {
+    display: none;
+}
+
+#result {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: center;
+    margin-top: 5em;
+}
+
+p {
+    margin: 5px 0;
+}

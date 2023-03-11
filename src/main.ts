@@ -1,13 +1,14 @@
 import {createWorker} from "tesseract.js";
-import {isUppercase} from "./utils";
+import {createCharactersButtons, createResetButton, isUppercase} from "./utils";
 
 // Get DOM elements
 const fileInput = document.getElementById('file-input') as HTMLInputElement;
-const submitButton = document.getElementById('submit-button') as HTMLButtonElement;
+// const submitButton = document.getElementById('submit-button') as HTMLButtonElement;
 const resultDiv = document.getElementById('result') as HTMLDivElement;
 const charactersDiv = document.getElementById('characters') as HTMLDivElement;
 const charactersButtons = document.getElementsByClassName('character-button') as HTMLCollectionOf<HTMLButtonElement>;
 const lines = document.getElementsByTagName('p') as HTMLCollectionOf<HTMLParagraphElement>;
+const fileList = document.getElementById('file-list') as HTMLDivElement;
 
 interface Dialogues {
     [nombre: string]: {
@@ -38,13 +39,17 @@ const resetFiles = () => {
     resultDiv.innerHTML = '';
     charactersDiv.innerHTML = '';
 }
+fileInput.addEventListener('change', async () => {
+    const file = fileInput.files?.[0];
+    if (file) {
+        fileList.innerText = file.name;
+        resultDiv.innerHTML = 'Working...';
+    }
 
-// Add event listener to submit button
-submitButton.addEventListener('click', async () => {
-    if (resultDiv.innerText !== '') return;
+    // if (resultDiv.innerText !== '') return;
     let allCharacters: Array<string> = [];
 
-    const file = fileInput.files?.[0];
+
     // Vérification qu'un fichier a été sélectionné
     if (!file) {
         if (resultDiv) {
@@ -124,31 +129,8 @@ submitButton.addEventListener('click', async () => {
                 dialogues[currentIndex - 1]["replique"] += ` ${r}`;
             }
         }
-        console.table(allCharacters);
         return dialogues;
     }
-
-
-    const createCharactersButtons = (characters: Array<string>, div: HTMLDivElement) => {
-        for (const character of characters) {
-            const button = document.createElement('button');
-            button.setAttribute('class', 'character-button');
-            button.setAttribute('id', character)
-            button.innerText = character;
-            div.appendChild(button);
-        }
-    }
-
-    const createResetButton = (div: HTMLDivElement) => {
-        const button = document.createElement('button');
-        button.setAttribute('class', 'reset-button');
-        button.innerText = 'Réinitialiser';
-        button.addEventListener('click', () => {
-            resetFiles();
-        });
-        div.appendChild(button);
-    }
-
 
     const dialoguesToHtml = (dialogues: Dialogues, div: HTMLDivElement, currentCharacter: string | null = null) => {
         const dialoguesArray = Object.values(dialogues);
@@ -169,9 +151,10 @@ submitButton.addEventListener('click', async () => {
 
     // Affichage du résultat dans la div prévue à cet effet
     if (resultDiv && ocrText) {
+        resultDiv.innerHTML = '';
         dialoguesToHtml(getDialogues(ocrText), resultDiv);
         createCharactersButtons(allCharacters, charactersDiv);
-        createResetButton(charactersDiv);
+        createResetButton(charactersDiv, resetFiles);
     }
 
 
@@ -191,7 +174,7 @@ submitButton.addEventListener('click', async () => {
             for (const line of arrayLines) {
                 line.addEventListener('click', () => {
                     const span = line.getElementsByTagName('span')[0];
-                    const characterLine = line.innerText.match(characterRegex)?.[0];
+                    const characterLine = line.innerText.match(characterRegex)?.[0].replace(':', '').trim();
                     if (characterLine === character) span.style.backgroundColor = span.style.backgroundColor === "black" ? characterColors[character] : "black";
                 });
             }

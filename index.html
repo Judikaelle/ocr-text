@@ -1,19 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/file.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="src/style.css" />
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="icon" type="image/svg+xml" href="/file.svg"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="src/style.css"/>
     <title>OCR Text</title>
-  </head>
-  <body>
-  <h1>OCR Text</h1>
-  <input type="file" id="file-input" multiple="multiple">
-  <button id="submit-button">Submit</button>
-  <div id="characters"></div>
-  <div id="result"></div>
-<!--  <button id="speak-button">Speak</button>-->
-  <script type="module" src="src/main.ts"></script>
-  </body>
+</head>
+<body>
+<h1>Text Learning</h1>
+<main>
+    <div class="input">
+        <div class="upload-button">
+            <label>
+                <input type="file" id="file-input" multiple/>
+                <i class="ri-upload-line"></i> Click to add your file
+            </label>
+            <div id="file-list"></div>
+        </div>
+<!--        <button id="submit-button">Submit</button>-->
+    </div>
+
+    <div id="characters"></div>
+    <div id="result"></div>
+    <!--  <button id="speak-button">Speak</button>-->
+</main>
+<script type="module" src="src/main.ts"></script>
+</body>
 </html>
