@@ -20,7 +20,7 @@ interface Dialogues {
     };
 }
 
-// let characterColors: any = {};
+let characterColors: any = {};
 let progress = 0;
 
 // Regex
@@ -29,15 +29,15 @@ const didascalieRegex = /^([^\(\)]+)\s*\([^)]*\)\s*:/
 // const fullDisacaliesRegex = /\n\s*\S.+\n/
 
 
-// const assignColors = (characters: Array<string>) => {
-//     const colors = ["lightcoral", "lightskyblue", "lightgreen", "lightsalmon"]
-//     const charactersColors: any = {};
-//     for (const character of characters) {
-//         charactersColors[character] = colors[0];
-//         colors.splice(0, 1);
-//     }
-//     return charactersColors;
-// }
+const assignColors = (characters: Array<string>) => {
+    const colors = ["lightcoral", "lightskyblue", "lightgreen", "lightsalmon"]
+    const charactersColors: any = {};
+    for (const character of characters) {
+        charactersColors[character] = colors[0];
+        colors.splice(0, 1);
+    }
+    return charactersColors;
+}
 
 const resetFiles = () => {
     fileInput.value = '';
@@ -157,18 +157,13 @@ fileInput.addEventListener('change', async () => {
 
     const dialoguesToHtml = (dialogues: Dialogues, div: HTMLDivElement, currentCharacter: string | null = null) => {
         const dialoguesArray = Object.values(dialogues);
-        // characterColors = assignColors(allCharacters);
+        characterColors = assignColors(allCharacters);
         let color;
         for (const key in dialoguesArray) {
             let character = dialoguesArray?.[key]["personnage"];
-            if (currentCharacter !== character) {
-                // color = characterColors[character];
-                color = "white";
-            } else {
-                color = "black";
-            }
+            color = currentCharacter !== character ? "white" : "black";
             const text = dialoguesArray[key]["replique"];
-            div.innerHTML += `<p><b>${character}</b> : <span id=${key} style="background-color: ${color}">${text}</span></p>`;
+            div.innerHTML += `<p><b style="background-color: ${characterColors[character]}">${character}</b> : <span id=${key} style="background-color: ${color}">${text}</span></p>`;
         }
     }
 
@@ -190,7 +185,6 @@ fileInput.addEventListener('change', async () => {
         button.addEventListener('click', () => {
             resultDiv.innerHTML = '';
             const character = button.getAttribute('id');
-            // const characterDialogues = Object.values(getDialogues(ocrText)).filter((dialogue: any) => dialogue.personnage === character);
             dialoguesToHtml(getDialogues(ocrText), resultDiv, character);
 
             // Création d'un tableau à partir de la collection de span
