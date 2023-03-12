@@ -23,7 +23,7 @@ let progress = 0;
 // Regex
 const characterRegex = /^[A-Za-z]+(\s*:|:)/;
 const didascalieRegex = /^([^\(\)]+)\s*\([^)]*\)\s*:/
-const fullDisacaliesRegex = /\n\n([^\n]+\n)+\n/
+// const fullDisacaliesRegex = /\n\n([^\n]+\n)+\n/
 
 
 const assignColors = (characters: Array<string>) => {
@@ -79,9 +79,9 @@ fileInput.addEventListener('change', async () => {
 
     const performOcr = async (image: string) => {
         const worker = await createWorker({
-            logger: m => {
-                if (m.status === 'recognizing text') {
-                    progress = Math.round(m.progress * 100);
+            logger: l => {
+                if (l.status === 'recognizing text') {
+                    progress = Math.round(l.progress * 100);
                     resultDiv.innerText = `Working... ${progress}%`;
                 }
             }
