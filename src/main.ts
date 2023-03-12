@@ -20,7 +20,7 @@ interface Dialogues {
     };
 }
 
-let characterColors: any = {};
+// let characterColors: any = {};
 let progress = 0;
 
 // Regex
@@ -29,15 +29,15 @@ const didascalieRegex = /^([^\(\)]+)\s*\([^)]*\)\s*:/
 // const fullDisacaliesRegex = /\n\s*\S.+\n/
 
 
-const assignColors = (characters: Array<string>) => {
-    const colors = ["lightcoral", "lightskyblue", "lightgreen", "lightsalmon"]
-    const charactersColors: any = {};
-    for (const character of characters) {
-        charactersColors[character] = colors[0];
-        colors.splice(0, 1);
-    }
-    return charactersColors;
-}
+// const assignColors = (characters: Array<string>) => {
+//     const colors = ["lightcoral", "lightskyblue", "lightgreen", "lightsalmon"]
+//     const charactersColors: any = {};
+//     for (const character of characters) {
+//         charactersColors[character] = colors[0];
+//         colors.splice(0, 1);
+//     }
+//     return charactersColors;
+// }
 
 const resetFiles = () => {
     fileInput.value = '';
@@ -111,6 +111,7 @@ fileInput.addEventListener('change', async () => {
         // const repliques = text?.match(/^.+$/gm);
         // const repliques = text?.match(/\n\s*\n/);
         const repliques = text?.match(/[^\n]+/g);
+
         const dialogues: any = {};
         let currentIndex = 1;
 
@@ -148,7 +149,6 @@ fileInput.addEventListener('change', async () => {
                 dialogues[currentIndex] = {"personnage": character.replace(':', '').trim(), "replique": dialogue};
                 currentIndex++;
             } else {
-                console.log(r);
                 dialogues[currentIndex - 1]["replique"] += ` ${r}`;
             }
         }
@@ -157,12 +157,13 @@ fileInput.addEventListener('change', async () => {
 
     const dialoguesToHtml = (dialogues: Dialogues, div: HTMLDivElement, currentCharacter: string | null = null) => {
         const dialoguesArray = Object.values(dialogues);
-        characterColors = assignColors(allCharacters);
+        // characterColors = assignColors(allCharacters);
         let color;
         for (const key in dialoguesArray) {
             let character = dialoguesArray?.[key]["personnage"];
             if (currentCharacter !== character) {
-                color = characterColors[character];
+                // color = characterColors[character];
+                color = "white";
             } else {
                 color = "black";
             }
@@ -198,7 +199,7 @@ fileInput.addEventListener('change', async () => {
                 line.addEventListener('click', () => {
                     const span = line.getElementsByTagName('span')[0];
                     const characterLine = line.innerText.match(characterRegex)?.[0].replace(':', '').trim();
-                    if (characterLine === character) span.style.backgroundColor = span.style.backgroundColor === "black" ? characterColors[character] : "black";
+                    if (characterLine === character) span.style.backgroundColor = span.style.backgroundColor === "black" ? "white" : "black";
                 });
             }
         });
