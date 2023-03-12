@@ -172,7 +172,7 @@ fileInput.addEventListener('change', async () => {
     if (resultDiv && ocrText) {
         resultDiv.innerHTML = '';
         dialoguesToHtml(getDialogues(ocrText), resultDiv);
-        createCharactersButtons(allCharacters, charactersDiv);
+        createCharactersButtons(allCharacters, charactersDiv, assignColors(allCharacters));
         createResetButton(charactersDiv, resetFiles);
     }
 

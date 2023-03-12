@@ -55,10 +55,9 @@ label {
 }
 
 .character-button, .reset-button {
-    background-color: #ff6400;
     border: none;
     border-radius: 0.5em;
-    color: #fff;
+    color: black;
     padding: 15px;
     text-decoration: none;
     cursor: pointer;
