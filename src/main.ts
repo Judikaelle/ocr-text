@@ -1,5 +1,5 @@
 import {createWorker} from "tesseract.js";
-import {createCharactersButtons, createResetButton, isUppercase} from "./utils";
+import {createCharactersButtons, createResetButton, isUppercase, replaceAll} from "./utils";
 
 // Get DOM elements
 const fileInput = document.getElementById('file-input') as HTMLInputElement;
@@ -9,6 +9,9 @@ const charactersDiv = document.getElementById('characters') as HTMLDivElement;
 const charactersButtons = document.getElementsByClassName('character-button') as HTMLCollectionOf<HTMLButtonElement>;
 const lines = document.getElementsByTagName('p') as HTMLCollectionOf<HTMLParagraphElement>;
 const fileList = document.getElementById('file-list') as HTMLDivElement;
+
+
+// TODO: Ajouter Revealjs (https://revealjs.com/)
 
 interface Dialogues {
     [nombre: string]: {
@@ -23,7 +26,7 @@ let progress = 0;
 // Regex
 const characterRegex = /^[A-Za-z]+(\s*:|:)/;
 const didascalieRegex = /^([^\(\)]+)\s*\([^)]*\)\s*:/
-// const fullDisacaliesRegex = /\n\n([^\n]+\n)+\n/
+// const fullDisacaliesRegex = /\n\s*\S.+\n/
 
 
 const assignColors = (characters: Array<string>) => {
@@ -105,14 +108,20 @@ fileInput.addEventListener('change', async () => {
 
     // Récupérer les dialogues
     const getDialogues = (text: string | undefined) => {
-        // const fullDisacalies = text?.match(fullDisacaliesRegex);
         // const repliques = text?.match(/^.+$/gm);
+        // const repliques = text?.match(/\n\s*\n/);
         const repliques = text?.match(/[^\n]+/g);
-        console.table(repliques)
         const dialogues: any = {};
         let currentIndex = 1;
 
-        for (const r of repliques || []) {
+        // Supprime le titre en haut de page
+        repliques?.shift();
+
+        for (let r of repliques || []) {
+            r = replaceAll(r);
+            // const fullDisacalies = r.match(fullDisacaliesRegex);
+            // console.log(fullDisacalies);
+
             const didascalieMatch = r.match(didascalieRegex);
             const characterMatch = r.match(characterRegex);
 
@@ -139,6 +148,7 @@ fileInput.addEventListener('change', async () => {
                 dialogues[currentIndex] = {"personnage": character.replace(':', '').trim(), "replique": dialogue};
                 currentIndex++;
             } else {
+                console.log(r);
                 dialogues[currentIndex - 1]["replique"] += ` ${r}`;
             }
         }

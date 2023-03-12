@@ -21,3 +21,7 @@ export const createResetButton = (div: HTMLDivElement, toDo: { (): void; (): voi
     });
     div.appendChild(button);
 }
+
+export const replaceAll = (string: string) => {
+    return string.replace('7', "?!").replace('))', ')');
+}
