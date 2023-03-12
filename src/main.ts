@@ -18,10 +18,12 @@ interface Dialogues {
 }
 
 let characterColors: any = {};
+let progress = 0;
 
 // Regex
 const characterRegex = /^[A-Za-z]+(\s*:|:)/;
 const didascalieRegex = /^([^\(\)]+)\s*\([^)]*\)\s*:/
+const fullDisacaliesRegex = /\n\n([^\n]+\n)+\n/
 
 
 const assignColors = (characters: Array<string>) => {
@@ -42,6 +44,7 @@ const resetFiles = () => {
 fileInput.addEventListener('change', async () => {
     const file = fileInput.files?.[0];
     if (file) {
+        resetFiles()
         fileList.innerText = file.name;
         resultDiv.innerHTML = 'Working...';
     }
@@ -75,7 +78,15 @@ fileInput.addEventListener('change', async () => {
 
 
     const performOcr = async (image: string) => {
-        const worker = await createWorker();
+        const worker = await createWorker({
+            logger: m => {
+                if (m.status === 'recognizing text') {
+                    progress = Math.round(m.progress * 100);
+                    resultDiv.innerText = `Working... ${progress}%`;
+                }
+            }
+        });
+
         try {
             await worker.loadLanguage('fra');
             await worker.initialize('fra');
@@ -94,8 +105,10 @@ fileInput.addEventListener('change', async () => {
 
     // Récupérer les dialogues
     const getDialogues = (text: string | undefined) => {
-        // TODO: Récupérer didascalies
-        const repliques = text?.match(/^.+$/gm);
+        // const fullDisacalies = text?.match(fullDisacaliesRegex);
+        // const repliques = text?.match(/^.+$/gm);
+        const repliques = text?.match(/[^\n]+/g);
+        console.table(repliques)
         const dialogues: any = {};
         let currentIndex = 1;
 
