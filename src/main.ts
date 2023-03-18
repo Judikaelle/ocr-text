@@ -155,13 +155,13 @@ fileInput.addEventListener('change', async () => {
         return dialogues;
     }
 
-    const dialoguesToHtml = (dialogues: Dialogues, div: HTMLDivElement, currentCharacter: string | null = null) => {
+    const dialoguesToHtml = (dialogues: Dialogues, div: HTMLDivElement, activeCharacter: string | null = null) => {
         const dialoguesArray = Object.values(dialogues);
         characterColors = assignColors(allCharacters);
         let color;
         for (const key in dialoguesArray) {
             let character = dialoguesArray?.[key]["personnage"];
-            color = currentCharacter !== character ? "white" : "black";
+            color = activeCharacter !== character ? "white" : "black";
             const text = dialoguesArray[key]["replique"];
             div.innerHTML += `<p><b style="background-color: ${characterColors[character]}">${character}</b> : <span id=${key} style="background-color: ${color}">${text}</span></p>`;
         }
@@ -180,20 +180,24 @@ fileInput.addEventListener('change', async () => {
     // Création d'un tableau à partir de la collection de boutons
     const arrayCharactersButtons = Array.from(charactersButtons);
 
+
+    let activeCharacter = '';
+
     // Ajout d'un event listener sur chaque bouton
     for (const button of arrayCharactersButtons) {
         button.addEventListener('click', () => {
+            let characterId = button.getAttribute('id');
+            if (characterId) activeCharacter = activeCharacter === '' || activeCharacter !== characterId ? characterId : '';
             resultDiv.innerHTML = '';
-            const character = button.getAttribute('id');
-            dialoguesToHtml(getDialogues(ocrText), resultDiv, character);
+            dialoguesToHtml(getDialogues(ocrText), resultDiv, activeCharacter);
 
-            // Création d'un tableau à partir de la collection de span
+            // Création d'un tableau à partir de la collection de paragraphes
             const arrayLines = Array.from(lines);
             for (const line of arrayLines) {
                 line.addEventListener('click', () => {
                     const span = line.getElementsByTagName('span')[0];
                     const characterLine = line.innerText.match(characterRegex)?.[0].replace(':', '').trim();
-                    if (characterLine === character) span.style.backgroundColor = span.style.backgroundColor === "black" ? "white" : "black";
+                    if (characterLine === characterId) span.style.backgroundColor = span.style.backgroundColor === "black" ? "white" : "black";
                 });
             }
         });
