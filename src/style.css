@@ -76,6 +76,10 @@ label {
     display: none;
 }
 
+#loading {
+    margin-top: 5em;
+}
+
 #result {
     width: 35vw;
     text-align: justify;

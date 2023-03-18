@@ -9,6 +9,7 @@ const charactersDiv = document.getElementById('characters') as HTMLDivElement;
 const charactersButtons = document.getElementsByClassName('character-button') as HTMLCollectionOf<HTMLButtonElement>;
 const lines = document.getElementsByTagName('p') as HTMLCollectionOf<HTMLParagraphElement>;
 const fileList = document.getElementById('file-list') as HTMLDivElement;
+const loadingDiv = document.getElementById('loading') as HTMLDivElement;
 
 
 // TODO: Ajouter Revealjs (https://revealjs.com/)
@@ -49,7 +50,7 @@ fileInput.addEventListener('change', async () => {
     if (file) {
         resetFiles()
         fileList.innerText = file.name;
-        resultDiv.innerHTML = 'Working...';
+        loadingDiv.innerHTML = 'Working...';
     }
 
     // if (resultDiv.innerText !== '') return;
@@ -85,7 +86,7 @@ fileInput.addEventListener('change', async () => {
             logger: l => {
                 if (l.status === 'recognizing text') {
                     progress = Math.round(l.progress * 100);
-                    resultDiv.innerText = `Working... ${progress}%`;
+                    loadingDiv.innerText = `Working... ${progress}%`;
                 }
             }
         });
@@ -108,8 +109,6 @@ fileInput.addEventListener('change', async () => {
 
     // Récupérer les dialogues
     const getDialogues = (text: string | undefined) => {
-        // const repliques = text?.match(/^.+$/gm);
-        // const repliques = text?.match(/\n\s*\n/);
         const repliques = text?.match(/[^\n]+/g);
 
         const dialogues: any = {};
@@ -120,8 +119,6 @@ fileInput.addEventListener('change', async () => {
 
         for (let r of repliques || []) {
             r = replaceAll(r);
-            // const fullDisacalies = r.match(fullDisacaliesRegex);
-            // console.log(fullDisacalies);
 
             const didascalieMatch = r.match(didascalieRegex);
             const characterMatch = r.match(characterRegex);
@@ -172,6 +169,8 @@ fileInput.addEventListener('change', async () => {
     if (resultDiv && ocrText) {
         resultDiv.innerHTML = '';
         dialoguesToHtml(getDialogues(ocrText), resultDiv);
+        loadingDiv.innerHTML = '';
+        loadingDiv.style.marginTop = '0';
         createCharactersButtons(allCharacters, charactersDiv, assignColors(allCharacters));
         createResetButton(charactersDiv, resetFiles);
     }
