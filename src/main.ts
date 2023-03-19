@@ -1,110 +1,46 @@
-import {createWorker} from "tesseract.js";
-import {createCharactersButtons, createResetButton, isUppercase, replaceAll} from "./utils";
-
-// Get DOM elements
-const fileInput = document.getElementById('file-input') as HTMLInputElement;
-// const submitButton = document.getElementById('submit-button') as HTMLButtonElement;
-const resultDiv = document.getElementById('result') as HTMLDivElement;
-const charactersDiv = document.getElementById('characters') as HTMLDivElement;
-const charactersButtons = document.getElementsByClassName('character-button') as HTMLCollectionOf<HTMLButtonElement>;
-const lines = document.getElementsByTagName('p') as HTMLCollectionOf<HTMLParagraphElement>;
-const fileList = document.getElementById('file-list') as HTMLDivElement;
-const loadingDiv = document.getElementById('loading') as HTMLDivElement;
-
+import {assignColors, isUppercase, replaceAll, resetFiles} from "./utils";
+import {createCharactersButtons, createResetButton} from "./html";
+import {Dialogues} from "./types";
+import {charactersButtons, charactersDiv, fileInput, fileList, loadingDiv, paragraphs, resultDiv} from "./dom";
+import {characterRegex, didascalieRegex} from "./regex";
+import {performOcr, readFileAsDataUrl} from "./ocr";
 
 // TODO: Ajouter Revealjs (https://revealjs.com/)
 
-interface Dialogues {
-    [nombre: string]: {
-        personnage: string;
-        replique: string;
-    };
-}
-
 let characterColors: any = {};
-let progress = 0;
 
-// Regex
-const characterRegex = /^[A-Za-z]+(\s*:|:)/;
-const didascalieRegex = /^([^\(\)]+)\s*\([^)]*\)\s*:/
-// const fullDisacaliesRegex = /\n\s*\S.+\n/
+// TODO: Refactoriser
+// TODO: Mettre en place LocalStorage
+// const ocrText = localStorage.getItem('ocrText')
 
+// if(ocrText) {
+//     // Affichage du résultat dans la div prévue à cet effet
+//     if (resultDiv && ocrText) {
+//         resultDiv.innerHTML = '';
+//         dialoguesToHtml(getDialogues(ocrText), resultDiv);
+//         loadingDiv.innerHTML = '';
+//         loadingDiv.style.marginTop = '0';
+//         createCharactersButtons(allCharacters, charactersDiv, assignColors(allCharacters));
+//         createResetButton(charactersDiv, resetFiles);
+//     }
+// }
 
-const assignColors = (characters: Array<string>) => {
-    const colors = ["lightcoral", "lightskyblue", "lightgreen", "lightsalmon"]
-    const charactersColors: any = {};
-    for (const character of characters) {
-        charactersColors[character] = colors[0];
-        colors.splice(0, 1);
-    }
-    return charactersColors;
-}
-
-const resetFiles = () => {
-    fileInput.value = '';
-    resultDiv.innerHTML = '';
-    charactersDiv.innerHTML = '';
-}
 fileInput.addEventListener('change', async () => {
     const file = fileInput.files?.[0];
     if (file) {
-        resetFiles()
+        resetFiles(fileInput, resultDiv, charactersDiv);
         fileList.innerText = file.name;
         loadingDiv.innerHTML = 'Working...';
     }
 
-    // if (resultDiv.innerText !== '') return;
     let allCharacters: Array<string> = [];
-
-
-    // Vérification qu'un fichier a été sélectionné
-    if (!file) {
-        if (resultDiv) {
-            resultDiv.innerText = 'Veuillez sélectionner un fichier.';
-        }
-    }
-
-
-// Fonction permettant la lecture d'un fichier en tant qu'URL Data
-    async function readFileAsDataUrl(file?: File): Promise<string> {
-        if (!file) {
-            throw new Error('Fichier non trouvé');
-        }
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
-    }
 
     const imageDataUrl = await readFileAsDataUrl(file);
 
 
-    const performOcr = async (image: string) => {
-        const worker = await createWorker({
-            logger: l => {
-                if (l.status === 'recognizing text') {
-                    progress = Math.round(l.progress * 100);
-                    loadingDiv.innerText = `Working... ${progress}%`;
-                }
-            }
-        });
+    const ocrText = await performOcr(imageDataUrl, loadingDiv);
+    if(ocrText) localStorage.setItem('ocrText', ocrText)
 
-        try {
-            await worker.loadLanguage('fra');
-            await worker.initialize('fra');
-            const {data: {text}} = await worker.recognize(image);
-            return text;
-        } catch (error) {
-            console.log(error);
-        } finally {
-            await worker.terminate();
-        }
-        return
-    }
-
-    const ocrText = await performOcr(imageDataUrl);
 
 
     // Récupérer les dialogues
@@ -170,9 +106,9 @@ fileInput.addEventListener('change', async () => {
         resultDiv.innerHTML = '';
         dialoguesToHtml(getDialogues(ocrText), resultDiv);
         loadingDiv.innerHTML = '';
-        loadingDiv.style.marginTop = '0';
+        // loadingDiv.style.marginTop = '0';
         createCharactersButtons(allCharacters, charactersDiv, assignColors(allCharacters));
-        createResetButton(charactersDiv, resetFiles);
+        createResetButton(charactersDiv, resetFiles.bind(fileInput, resultDiv, charactersDiv));
     }
 
 
@@ -191,11 +127,11 @@ fileInput.addEventListener('change', async () => {
             dialoguesToHtml(getDialogues(ocrText), resultDiv, activeCharacter);
 
             // Création d'un tableau à partir de la collection de paragraphes
-            const arrayLines = Array.from(lines);
-            for (const line of arrayLines) {
-                line.addEventListener('click', () => {
-                    const span = line.getElementsByTagName('span')[0];
-                    const characterLine = line.innerText.match(characterRegex)?.[0].replace(':', '').trim();
+            const arrayParagraph = Array.from(paragraphs);
+            for (const p of arrayParagraph) {
+                p.addEventListener('click', () => {
+                    const span = p.getElementsByTagName('span')[0];
+                    const characterLine = p.innerText.match(characterRegex)?.[0].replace(':', '').trim();
                     if (characterLine === characterId) span.style.backgroundColor = span.style.backgroundColor === "black" ? "white" : "black";
                 });
             }

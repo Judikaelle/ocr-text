@@ -2,27 +2,27 @@ export const isUppercase = (string: string) => {
     return /^\p{Lu}/u.test(string);
 }
 
-export const createCharactersButtons = (characters: Array<string>, div: HTMLDivElement, characterColors: any) => {
-    for (const character of characters) {
-        const button = document.createElement('button');
-        button.setAttribute('class', 'character-button');
-        button.setAttribute('id', character)
-        button.style.backgroundColor = characterColors[character];
-        button.innerText = character;
-        div.appendChild(button);
+export const replaceAll = (string: string) => {
+    return string.replace('7', "?!").replace('))', ')');
+}
+
+export const resetFiles = (...args: (HTMLDivElement | HTMLInputElement)[]) => {
+    for (const a of args) {
+        a.innerHTML = '';
+        if ("value" in a) {
+            console.log(a)
+            a.value = '';
+        }
+
     }
 }
 
-export const createResetButton = (div: HTMLDivElement, toDo: { (): void; (): void; }) => {
-    const button = document.createElement('button');
-    button.setAttribute('class', 'reset-button');
-    button.innerText = 'Réinitialiser';
-    button.addEventListener('click', () => {
-        toDo();
-    });
-    div.appendChild(button);
-}
-
-export const replaceAll = (string: string) => {
-    return string.replace('7', "?!").replace('))', ')');
+export const assignColors = (characters: Array<string>) => {
+    const colors = ["lightcoral", "lightskyblue", "lightgreen", "lightsalmon"]
+    const charactersColors: any = {};
+    for (const character of characters) {
+        charactersColors[character] = colors[0];
+        colors.splice(0, 1);
+    }
+    return charactersColors;
 }
