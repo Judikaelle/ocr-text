@@ -1,2 +1,4 @@
-export const characterRegex = /^[A-Za-z]+(\s*:|:)/;
-export const didascalieRegex = /^([^\(\)]+)\s*\([^)]*\)\s*:/
+const characterRegex = /^[A-Za-z]+(\s*:|:)/;
+const didascalieRegex = /^([^\(\)]+)\s*\([^)]*\)\s*:/
+
+export {characterRegex, didascalieRegex}

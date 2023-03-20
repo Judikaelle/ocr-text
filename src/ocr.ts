@@ -1,7 +1,7 @@
 // Fonction permettant la lecture d'un fichier en tant qu'URL Data
 import {createWorker} from "tesseract.js";
 
-export async function readFileAsDataUrl(file?: File): Promise<string> {
+async function readFileAsDataUrl(file?: File): Promise<string> {
     if (!file) {
         throw new Error('Fichier non trouvé');
     }
@@ -13,7 +13,7 @@ export async function readFileAsDataUrl(file?: File): Promise<string> {
     });
 }
 
-export const performOcr = async (image: string, loadingDiv: HTMLDivElement) => {
+const performOcr = async (image: string, loadingDiv: HTMLDivElement) => {
     let progress = 0;
     const worker = await createWorker({
         logger: l => {
@@ -36,3 +36,5 @@ export const performOcr = async (image: string, loadingDiv: HTMLDivElement) => {
     }
     return
 }
+
+export {readFileAsDataUrl, performOcr}

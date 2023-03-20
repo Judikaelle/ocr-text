@@ -1,4 +1,4 @@
-export const createCharactersButtons = (characters: Array<string>, div: HTMLDivElement, characterColors: any) => {
+const createCharactersButtons = (characters: Array<string>, div: HTMLDivElement, characterColors: any) => {
     for (const character of characters) {
         const button = document.createElement('button');
         button.setAttribute('class', 'character-button');
@@ -9,7 +9,7 @@ export const createCharactersButtons = (characters: Array<string>, div: HTMLDivE
     }
 }
 
-export const createResetButton = (div: HTMLDivElement, toDo: (...args: (HTMLDivElement | HTMLInputElement)[]) => void) => {
+const createResetButton = (div: HTMLDivElement, toDo: (...args: (HTMLDivElement | HTMLInputElement)[]) => void) => {
     const button = document.createElement('button');
     button.setAttribute('class', 'reset-button');
     button.innerText = 'Réinitialiser';
@@ -18,3 +18,5 @@ export const createResetButton = (div: HTMLDivElement, toDo: (...args: (HTMLDivE
     });
     div.appendChild(button);
 }
+
+export {createCharactersButtons, createResetButton}
