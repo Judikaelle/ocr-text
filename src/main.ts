@@ -13,18 +13,21 @@ let ocrText: string | undefined;
 let imageDataUrl;
 
 // Récupération de l'image depuis la base de données
-file = await getImageFromDB("1").then(r => r)
-if (file) {
-    imageDataUrl = await readFileAsDataUrl(file);
-    fileList.innerText = file.name;
-    ocrText = await performOcr(imageDataUrl, loadingDiv);
-    let {dialogues, allCharacters} = getDialogues(ocrText);
-    dialoguesToHtml(dialogues, resultDiv, allCharacters, characterColors);
-    loadingDiv.innerHTML = '';
-    createCharactersButtons(allCharacters, charactersDiv, assignColors(allCharacters));
-    createResetButton(charactersDiv, resetFiles.bind(fileInput, resultDiv, charactersDiv));
+const getImage = async () => {
+    file = await getImageFromDB("1").then(r => r)
+    if (file) {
+        imageDataUrl = await readFileAsDataUrl(file);
+        fileList.innerText = file.name;
+        ocrText = await performOcr(imageDataUrl, loadingDiv);
+        let {dialogues, allCharacters} = getDialogues(ocrText);
+        dialoguesToHtml(dialogues, resultDiv, allCharacters, characterColors);
+        loadingDiv.innerHTML = '';
+        createCharactersButtons(allCharacters, charactersDiv, assignColors(allCharacters));
+        createResetButton(charactersDiv, resetFiles.bind(fileInput, resultDiv, charactersDiv));
+    }
 }
 
+getImage()
 selectedCharacter(ocrText)
 
 fileInput.addEventListener('change', async () => {
