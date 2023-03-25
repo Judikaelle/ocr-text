@@ -1,6 +1,6 @@
 import {assignColors, resetFiles} from "./utils";
 import {createCharactersButtons, createResetButton} from "./html";
-import {charactersDiv, fileInput, fileList, loadingDiv, resultDiv} from "./dom";
+import {charactersDiv, fileInput, fileList, loadingDiv, resultSection} from "./dom";
 import {performOcr, readFileAsDataUrl} from "./ocr";
 import {dialoguesToHtml, getDialogues, selectedCharacter} from "./dialogue";
 import {addImageToDB, getImageFromDB} from "./database";
@@ -21,10 +21,10 @@ let imageDataUrl;
         fileList.innerText = file.name;
         ocrText = await performOcr(imageDataUrl, loadingDiv);
         let {dialogues, allCharacters} = getDialogues(ocrText);
-        dialoguesToHtml(dialogues, resultDiv, allCharacters, characterColors);
+        dialoguesToHtml(dialogues, resultSection, allCharacters, characterColors);
         loadingDiv.innerHTML = '';
         createCharactersButtons(allCharacters, charactersDiv, assignColors(allCharacters));
-        createResetButton(charactersDiv, resetFiles.bind(fileInput, resultDiv, charactersDiv));
+        createResetButton(charactersDiv, resetFiles.bind(fileInput, resultSection, charactersDiv));
         selectedCharacter(ocrText)
     }
 })()
@@ -34,7 +34,7 @@ fileInput.addEventListener('change', async () => {
     file = fileInput.files?.[0];
     if (file) {
         addImageToDB("1", file).then(r => console.log(r))
-        resetFiles(fileInput, resultDiv, charactersDiv);
+        resetFiles(fileInput, resultSection, charactersDiv);
         fileList.innerText = file.name;
         loadingDiv.innerHTML = 'Working...';
     }
@@ -44,13 +44,13 @@ fileInput.addEventListener('change', async () => {
 
 
     // Affichage du résultat dans la div prévue à cet effet
-    if (resultDiv && ocrText) {
-        resultDiv.innerHTML = '';
+    if (resultSection && ocrText) {
+        resultSection.innerHTML = '';
         let {dialogues, allCharacters} = getDialogues(ocrText);
-        dialoguesToHtml(dialogues, resultDiv, allCharacters, characterColors);
+        dialoguesToHtml(dialogues, resultSection, allCharacters, characterColors);
         loadingDiv.innerHTML = '';
         createCharactersButtons(allCharacters, charactersDiv, assignColors(allCharacters));
-        createResetButton(charactersDiv, resetFiles.bind(fileInput, resultDiv, charactersDiv));
+        createResetButton(charactersDiv, resetFiles.bind(fileInput, resultSection, charactersDiv));
     }
 
     selectedCharacter(ocrText)

@@ -91,6 +91,11 @@ label {
     margin-top: 5em;
 }
 
-p {
+.personnage-replique {
     margin: 5px 0;
+}
+
+.replique, .replique-line{
+    display: inline;
+    text-align: justify;
 }

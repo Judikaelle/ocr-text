@@ -1,7 +1,7 @@
-import {assignColors, isUppercase, replaceAll} from "./utils";
+import {assignColors, getLines, isUppercase, replaceAll, splitLines} from "./utils";
 import {characterRegex, didascalieRegex} from "./regex";
 import {Dialogues} from "./types";
-import {charactersButtons, paragraphs, resultDiv} from "./dom";
+import {charactersButtons, paragraphs, resultSection} from "./dom";
 
 const getDialogues = (text: string | undefined) => {
     const repliques = text?.match(/[^\n]+/g);
@@ -48,7 +48,7 @@ const getDialogues = (text: string | undefined) => {
     return {dialogues, allCharacters};
 }
 
-const dialoguesToHtml = (dialogues: Dialogues, div: HTMLDivElement, allCharacters: Array<string>, activeCharacter: string | null = null) => {
+const dialoguesToHtml = (dialogues: Dialogues, section: HTMLDivElement, allCharacters: Array<string>, activeCharacter: string | null = null) => {
     let characterColors: any = {};
     const dialoguesArray = Object.values(dialogues);
     characterColors = assignColors(allCharacters);
@@ -57,37 +57,66 @@ const dialoguesToHtml = (dialogues: Dialogues, div: HTMLDivElement, allCharacter
         let character = dialoguesArray?.[key]["personnage"];
         color = activeCharacter !== character ? "white" : "black";
         const text = dialoguesArray[key]["replique"];
-        div.innerHTML += `<p><b style="background-color: ${characterColors[character]}">${character}</b> : <span id=${key} style="background-color: ${color}">${text}</span></p>`;
+        section.innerHTML += `<div class="personnage-replique"><b style="background-color: ${characterColors[character]}">${character}</b> : <div class="replique" id=${key} style="background-color: ${color}">${text}</div></div>`;
     }
 }
 
 const selectedCharacter = (ocrText: string | undefined) => {
-// Création d'un tableau à partir de la collection de boutons
-    const arrayCharactersButtons = Array.from(charactersButtons);
+    // @ts-ignore
+    const arrayCharactersButtons = [...charactersButtons];
     let activeCharacter = '';
 
-    // Ajout d'un event listener sur chaque bouton
-    for (const button of arrayCharactersButtons) {
+    arrayCharactersButtons.forEach(button => {
         button.addEventListener('click', () => {
-            let characterId = button.getAttribute('id');
-            console.log(characterId);
-            if (characterId) activeCharacter = activeCharacter === '' || activeCharacter !== characterId ? characterId : '';
-            resultDiv.innerHTML = '';
-            let {dialogues, allCharacters} = getDialogues(ocrText);
-            dialoguesToHtml(dialogues, resultDiv, allCharacters, activeCharacter);
-
-            // Création d'un tableau à partir de la collection de paragraphes
-            const arrayParagraph = Array.from(paragraphs);
-            for (const p of arrayParagraph) {
-                p.addEventListener('click', () => {
-                    const span = p.getElementsByTagName('span')[0];
-                    const characterLine = p.innerText.match(characterRegex)?.[0].replace(':', '').trim();
-                    if (characterLine === characterId) span.style.backgroundColor = span.style.backgroundColor === "black" ? "white" : "black";
-                });
+            const characterId = button.getAttribute('id');
+            if (characterId) {
+                activeCharacter = activeCharacter === '' || activeCharacter !== characterId ? characterId : '';
             }
+            resultSection.innerHTML = '';
+            const {dialogues, allCharacters} = getDialogues(ocrText);
+            dialoguesToHtml(dialogues, resultSection, allCharacters, activeCharacter);
+
+
+            // @ts-ignore
+            const paragraphArray = [...paragraphs];
+            paragraphArray.forEach(paragraph => {
+                const characterLine = paragraph.innerText.match(characterRegex)?.[0].replace(':', '').trim();
+                const replique = paragraph.querySelector('.replique') as HTMLDivElement;
+                if (characterLine === characterId) {
+                    // Reformate monologue
+                    if (replique.innerHTML.length > 100) {
+                        replique.innerHTML = splitLines(replique);
+                        const lines = getLines();
+                        lines.forEach(line => {
+                            const div = document.createElement('div');
+                            div.setAttribute('class', 'replique-line');
+                            line.forEach(span => {
+                                span.innerHTML = ` ${span.innerHTML} `;
+                                div.appendChild(span);
+                            });
+                            if (div.innerHTML.length > 1) {
+                                replique.appendChild(div);
+                            }
+                        });
+                    }
+                }
+                if (replique.innerHTML.length > 100 && characterLine === characterId) {
+                    const allLines = Array.from(document.getElementsByClassName('replique-line')) as HTMLDivElement[];
+                    allLines.forEach(line => {
+                        line.addEventListener('click', () => {
+                            line.style.backgroundColor = line.style.backgroundColor === 'white' || '' ? 'black' : 'white'
+                        });
+                    });
+                }
+                paragraph.addEventListener('click', () => {
+                    if (characterLine === characterId && replique.innerHTML.length <= 100) {
+                            replique.style.backgroundColor = replique.style.backgroundColor === 'black' ? 'white' : 'black';
+                        }
+                });
+            });
         });
-    }
-}
+    });
+};
 
 
 export {getDialogues, dialoguesToHtml, selectedCharacter};

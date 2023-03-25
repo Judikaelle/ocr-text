@@ -26,4 +26,29 @@ const assignColors = (characters: Array<string>) => {
     return charactersColors;
 }
 
-export {isUppercase, replaceAll, resetFiles, assignColors}
+const splitLines = (monologue: HTMLDivElement) => {
+    return monologue.innerHTML = monologue.innerText.split(/\s/).map(function (word) {
+        return '<span>' + word + '</span>'
+    }).join(' ');
+}
+
+
+const getLines = () => {
+    const lines = [];
+    let line: HTMLSpanElement[] = [];
+    let lastTop = -1;
+    const words = Array.from(document.getElementsByTagName('span'));
+    words.forEach((word) => {
+        if (word.offsetTop !== lastTop) {
+            lastTop = word.offsetTop;
+            lines.push(line);
+            line = [];
+        }
+        line.push(word);
+    });
+    lines.push(line);
+    return lines;
+};
+
+
+export {isUppercase, replaceAll, resetFiles, assignColors, splitLines, getLines}
