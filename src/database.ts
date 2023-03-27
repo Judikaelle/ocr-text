@@ -1,6 +1,6 @@
-const DB_NAME = 'nom_de_la_base_de_données';
+const DB_NAME = 'Excel';
 const DB_VERSION = 1;
-const DB_STORE_NAME = 'nom_du_store';
+const DB_STORE_NAME = 'ExcelFile';
 
 const openDB = () => {
     return new Promise<IDBDatabase>((resolve, reject) => {
@@ -28,7 +28,7 @@ const openDB = () => {
     });
 };
 
-const addImageToDB = (imageId: string, imageData: File) => {
+const addFileToDB = (imageId: string, imageData: File) => {
     return new Promise<void>(async (resolve, reject) => {
         const db = await openDB();
 
@@ -50,7 +50,7 @@ const addImageToDB = (imageId: string, imageData: File) => {
     });
 };
 
-const getImageFromDB = (imageId: string) => {
+const getFileFromDB = (imageId: string) => {
     return new Promise<File| undefined>(async (resolve, reject) => {
         const db = await openDB();
 
@@ -77,4 +77,4 @@ const getImageFromDB = (imageId: string) => {
     });
 };
 
-export {openDB, addImageToDB, getImageFromDB};
+export {openDB, addFileToDB, getFileFromDB};

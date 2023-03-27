@@ -1,51 +1,66 @@
-import {assignColors, getLines, isUppercase, replaceAll, splitLines} from "./utils";
-import {characterRegex, didascalieRegex} from "./regex";
+import {characterRegex, didascalieRegex, ensembleRegex, parenthesesRegex} from "./regex";
 import {Dialogues} from "./types";
+import {assignColors, getLines, splitLines} from "./utils";
 import {charactersButtons, paragraphs, resultSection} from "./dom";
 
-const getDialogues = (text: string | undefined) => {
-    const repliques = text?.match(/[^\n]+/g);
-
+const formatExcelFile = (data: Object) => {
+    const allDialogue: any = {};
     let allCharacters: Array<string> = [];
-    const dialogues: any = {};
     let currentIndex = 1;
 
-    // Supprime le titre en haut de page
-    repliques?.shift();
+    // @ts-ignore
+    for (const [line] of data) {
+        if (line) {
+            const characterMatch = line.match(characterRegex);
+            const didascalieMatch = line.match(didascalieRegex);
+            const parenthesesMatch = line.match(parenthesesRegex);
+            const ensembleMatch = line.match(ensembleRegex);
 
-    for (let r of repliques || []) {
-        r = replaceAll(r);
+            if (characterMatch) {
+                let character = characterMatch[0].replace(':', '').trim();
 
-        const didascalieMatch = r.match(didascalieRegex);
-        const characterMatch = r.match(characterRegex);
+                // Ajouter le personnage à la liste des personnages
+                allCharacters.push(character);
+                allCharacters = Array.from(new Set(allCharacters));
 
-        if (didascalieMatch) {
-            const didascalie = didascalieMatch[0];
-            const stringSplit = didascalie.split(' ');
-            const dialogue = r.replace(didascalie, '');
+                const replique = line.replace(characterMatch[0], '').trim();
 
-            // Ajouter le personnage à la liste des personnages
-            allCharacters.push(stringSplit[0].trim());
-            allCharacters = Array.from(new Set(allCharacters))
+                // Créer un objet pour chaque dialogue
+                allDialogue[currentIndex] = {"personnage": character, "replique": replique};
+                currentIndex++;
+            } else if (didascalieMatch) {
+                const didascalie = didascalieMatch[0];
+                const didascalieSplit = didascalie.split(' ');
+                const parentheses = parenthesesMatch?.[0];
+                let character = didascalieSplit[0].trim();
 
-            dialogues[currentIndex] = {"personnage": stringSplit[0].trim(), "replique": dialogue};
-            currentIndex++;
-        } else if (characterMatch && isUppercase(characterMatch[0])) {
-            const character = characterMatch[0];
-            const dialogue = r.replace(character, '');
+                // Ajouter le personnage à la liste des personnages
+                if (character === 'AMANDE') character = 'ARMANDE';
+                allCharacters.push(character);
+                allCharacters = Array.from(new Set(allCharacters));
 
-            // Ajouter le personnage à la liste des personnages
-            allCharacters.push(character.replace(':', '').trim());
-            allCharacters = Array.from(new Set(allCharacters));
+                const replique = line.replace(didascalieMatch[0], '');
 
-            // Créer un objet pour chaque dialogue
-            dialogues[currentIndex] = {"personnage": character.replace(':', '').trim(), "replique": dialogue};
-            currentIndex++;
-        } else {
-            dialogues[currentIndex - 1]["replique"] += ` ${r}`;
+                // Créer un objet pour chaque dialogue
+                allDialogue[currentIndex] = {
+                    "personnage": didascalieSplit[0].trim(),
+                    "replique": `${parentheses} ${replique}`
+                };
+                currentIndex++;
+            } else if (ensembleMatch) {
+                const replique = line.replace(ensembleMatch[0], '').trim();
+
+                // Créer un objet pour chaque dialogue
+                allDialogue[currentIndex] = {"personnage": 'ENSEMBLE', "replique": replique};
+                currentIndex++;
+            } else {
+                allDialogue[currentIndex - 1]["replique"] += ` ${line}`;
+            }
         }
     }
-    return {dialogues, allCharacters};
+
+    return {allDialogue, allCharacters};
+
 }
 
 const dialoguesToHtml = (dialogues: Dialogues, section: HTMLDivElement, allCharacters: Array<string>, activeCharacter: string | null = null) => {
@@ -61,7 +76,7 @@ const dialoguesToHtml = (dialogues: Dialogues, section: HTMLDivElement, allChara
     }
 }
 
-const selectedCharacter = (ocrText: string | undefined) => {
+const selectedCharacter = (text: Object) => {
     // @ts-ignore
     const arrayCharactersButtons = [...charactersButtons];
     let activeCharacter = '';
@@ -73,35 +88,34 @@ const selectedCharacter = (ocrText: string | undefined) => {
                 activeCharacter = activeCharacter === '' || activeCharacter !== characterId ? characterId : '';
             }
             resultSection.innerHTML = '';
-            const {dialogues, allCharacters} = getDialogues(ocrText);
-            dialoguesToHtml(dialogues, resultSection, allCharacters, activeCharacter);
-
+            const {allDialogue, allCharacters} = formatExcelFile(text);
+            dialoguesToHtml(allDialogue, resultSection, allCharacters, activeCharacter);
 
             // @ts-ignore
             const paragraphArray = [...paragraphs];
             paragraphArray.forEach(paragraph => {
                 const characterLine = paragraph.innerText.match(characterRegex)?.[0].replace(':', '').trim();
                 const replique = paragraph.querySelector('.replique') as HTMLDivElement;
-                if (characterLine === characterId) {
-                    // Reformate monologue
-                    if (replique.innerHTML.length > 100) {
-                        replique.innerHTML = splitLines(replique);
-                        const lines = getLines();
-                        lines.forEach(line => {
-                            const div = document.createElement('div');
-                            div.setAttribute('class', 'replique-line');
-                            line.forEach(span => {
-                                span.innerHTML = ` ${span.innerHTML} `;
+                if (characterLine === characterId && replique.innerHTML.length > 100) {
+                    replique.innerHTML = splitLines(replique);
+                    const lines = getLines();
+                    lines.forEach(line => {
+                        const div = document.createElement('div');
+                        div.setAttribute('class', 'replique-line');
+                        line.forEach(span => {
+                            span.innerHTML = ` ${span.innerHTML} `;
+                            if (replique.innerHTML.includes(span.innerHTML)) {
                                 div.appendChild(span);
-                            });
-                            if (div.innerHTML.length > 1) {
-                                replique.appendChild(div);
                             }
                         });
-                    }
+                        if (div.innerHTML.length > 1) {
+                            replique.appendChild(div);
+                        }
+                    });
+
                 }
                 if (replique.innerHTML.length > 100 && characterLine === characterId) {
-                    const allLines = Array.from(document.getElementsByClassName('replique-line')) as HTMLDivElement[];
+                    const allLines = Array.from(replique.getElementsByClassName('replique-line')) as HTMLDivElement[];
                     allLines.forEach(line => {
                         line.addEventListener('click', () => {
                             line.style.backgroundColor = line.style.backgroundColor === 'white' || '' ? 'black' : 'white'
@@ -110,8 +124,8 @@ const selectedCharacter = (ocrText: string | undefined) => {
                 }
                 paragraph.addEventListener('click', () => {
                     if (characterLine === characterId && replique.innerHTML.length <= 100) {
-                            replique.style.backgroundColor = replique.style.backgroundColor === 'black' ? 'white' : 'black';
-                        }
+                        replique.style.backgroundColor = replique.style.backgroundColor === 'black' ? 'white' : 'black';
+                    }
                 });
             });
         });
@@ -119,4 +133,4 @@ const selectedCharacter = (ocrText: string | undefined) => {
 };
 
 
-export {getDialogues, dialoguesToHtml, selectedCharacter};
+export {formatExcelFile, dialoguesToHtml, selectedCharacter};
