@@ -91,6 +91,25 @@ label {
     margin-top: 5em;
 }
 
+@media screen and (max-width: 1400px) {
+    #result {
+        width: 50vw;
+    }
+
+}
+
+@media screen and (max-width: 1250px) {
+    #result {
+        width: 65vw;
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    #result {
+        width: 75vw;
+    }
+}
+
 .personnage-replique {
     margin: 5px 0;
 }
