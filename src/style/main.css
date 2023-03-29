@@ -6,7 +6,7 @@
 }
 
 body {
-    font-family: 'Inconsolata', monospace;
+    font-family: Aria, 'Inconsolata', monospace;
     background-color: #fff;
     color: black;
     margin: 2em;
@@ -81,7 +81,7 @@ label {
 }
 
 #result {
-    width: 35vw;
+    width: 47vw;
     text-align: justify;
     line-height: 22px;
     display: flex;
