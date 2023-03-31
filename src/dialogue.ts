@@ -1,6 +1,6 @@
-import {characterRegex, didascalieRegex, ensembleRegex, parenthesesRegex} from "./regex";
+import {characterRegex, didascalieRegex, ensembleRegex} from "./regex";
 import {Dialogues} from "./types";
-import {assignColors, getLines, splitPhrases} from "./utils";
+import {assignColors, getLines, removeDidascalies, splitPhrases} from "./utils";
 import {charactersButtons, paragraphs, resultSection} from "./dom";
 
 const formatExcelFile = (data: Object) => {
@@ -11,10 +11,11 @@ const formatExcelFile = (data: Object) => {
     // @ts-ignore
     for (const [line] of data) {
         if (line) {
-            const characterMatch = line.match(characterRegex);
-            const didascalieMatch = line.match(didascalieRegex);
-            const parenthesesMatch = line.match(parenthesesRegex);
-            const ensembleMatch = line.match(ensembleRegex);
+            const newLine = removeDidascalies(line)
+            const characterMatch = newLine.match(characterRegex);
+            const didascalieMatch = newLine.match(didascalieRegex);
+            // const parenthesesMatch = newLine.match(parenthesesRegex);
+            const ensembleMatch = newLine.match(ensembleRegex);
 
             if (characterMatch) {
                 let character = characterMatch[0].replace(':', '').trim();
@@ -23,7 +24,7 @@ const formatExcelFile = (data: Object) => {
                 allCharacters.push(character);
                 allCharacters = Array.from(new Set(allCharacters));
 
-                const replique = line.replace(characterMatch[0], '').trim();
+                const replique = newLine.replace(characterMatch[0], '').trim();
 
                 // Créer un objet pour chaque dialogue
                 allDialogue[currentIndex] = {"personnage": character, "replique": replique};
@@ -31,7 +32,7 @@ const formatExcelFile = (data: Object) => {
             } else if (didascalieMatch) {
                 const didascalie = didascalieMatch[0];
                 const didascalieSplit = didascalie.split(' ');
-                const parentheses = parenthesesMatch?.[0];
+                // const parentheses = parenthesesMatch?.[0];
                 let character = didascalieSplit[0].trim();
 
                 // Ajouter le personnage à la liste des personnages
@@ -39,12 +40,12 @@ const formatExcelFile = (data: Object) => {
                 allCharacters.push(character);
                 allCharacters = Array.from(new Set(allCharacters));
 
-                const replique = line.replace(didascalieMatch[0], '');
+                const replique = newLine.replace(didascalieMatch[0], '');
 
                 // Créer un objet pour chaque dialogue
                 allDialogue[currentIndex] = {
                     "personnage": didascalieSplit[0].trim(),
-                    "replique": `${parentheses} ${replique}`
+                    "replique": `${replique}`
                 };
                 currentIndex++;
             } else if (ensembleMatch) {
@@ -54,7 +55,7 @@ const formatExcelFile = (data: Object) => {
                 allDialogue[currentIndex] = {"personnage": 'ENSEMBLE', "replique": replique};
                 currentIndex++;
             } else {
-                allDialogue[currentIndex - 1]["replique"] += ` ${line}`;
+                allDialogue[currentIndex - 1]["replique"] += ` ${newLine}`;
             }
         }
     }

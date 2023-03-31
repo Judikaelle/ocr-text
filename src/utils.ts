@@ -67,5 +67,9 @@ const memoize = <T = any>(fn: { call: (arg0: any, arg1: T) => any; }) => {
     return cached;
 };
 
+const removeDidascalies = (text: string) => {
+    return text.replace(/\(.*?\)/g, '');
+}
 
-export {isUppercase, replaceAll, resetFiles, assignColors, splitLines, splitPhrases, getLines, memoize}
+
+export {isUppercase, replaceAll, resetFiles, assignColors, splitLines, splitPhrases, getLines, memoize, removeDidascalies}
