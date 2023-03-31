@@ -32,6 +32,12 @@ const splitLines = (monologue: HTMLDivElement) => {
     }).join(' ');
 }
 
+const splitPhrases = (monologue: HTMLDivElement) => {
+    return monologue.innerText.split(/(\.{1,3}|[!?][?!]?)/).map(function (phrase) {
+        return '<span>' + phrase + '</span>'
+    }).join(' ');
+}
+
 
 const getLines = () => {
     const lines = [];
@@ -50,5 +56,16 @@ const getLines = () => {
     return lines;
 };
 
+const memoize = <T = any>(fn: { call: (arg0: any, arg1: T) => any; }) => {
+    const cache = new Map();
+    const cached = function (this: any, val: T) {
+        return cache.has(val)
+            ? cache.get(val)
+            : cache.set(val, fn.call(this, val)) && cache.get(val);
+    };
+    cached.cache = cache;
+    return cached;
+};
 
-export {isUppercase, replaceAll, resetFiles, assignColors, splitLines, getLines}
+
+export {isUppercase, replaceAll, resetFiles, assignColors, splitLines, splitPhrases, getLines, memoize}
