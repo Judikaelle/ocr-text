@@ -19,6 +19,7 @@ const formatExcelFile = (data: Object) => {
 
             if (characterMatch) {
                 let character = characterMatch[0].replace(':', '').trim();
+                if (character === 'AMANDE') character = 'ARMANDE';
 
                 // Ajouter le personnage à la liste des personnages
                 allCharacters.push(character);
