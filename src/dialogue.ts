@@ -1,6 +1,6 @@
 import {characterRegex, didascalieRegex, ensembleRegex, parenthesesRegex} from "./regex";
 import {Dialogues} from "./types";
-import {assignColors, getLines, splitLines} from "./utils";
+import {assignColors, getLines, splitPhrases} from "./utils";
 import {charactersButtons, paragraphs, resultSection} from "./dom";
 
 const formatExcelFile = (data: Object) => {
@@ -97,7 +97,8 @@ const selectedCharacter = (text: Object) => {
                 const characterLine = paragraph.innerText.match(characterRegex)?.[0].replace(':', '').trim();
                 const replique = paragraph.querySelector('.replique') as HTMLDivElement;
                 if (characterLine === characterId && replique.innerHTML.length > 100) {
-                    replique.innerHTML = splitLines(replique);
+                    // replique.innerHTML = splitLines(replique);
+                    replique.innerHTML = splitPhrases(replique);
                     const lines = getLines();
                     lines.forEach(line => {
                         const div = document.createElement('div');
@@ -115,6 +116,7 @@ const selectedCharacter = (text: Object) => {
 
                 }
                 if (replique.innerHTML.length > 100 && characterLine === characterId) {
+                    // const allPhrases = replique.innerText.split(/[.]{1,3}|[!?]{1,2}/);
                     const allLines = Array.from(replique.getElementsByClassName('replique-line')) as HTMLDivElement[];
                     allLines.forEach(line => {
                         line.addEventListener('click', () => {
